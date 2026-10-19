@@ -134,20 +134,6 @@ becomes:
 https://example.com/a?id=1
 ```
 
-## Performance
-
-On a synthetic 300,000-line, 15 MB URL file (Python 3.12 reference version vs
-this C build, `-O2`):
-
-| Version | Wall time | Peak RSS |
-| --- | --- | --- |
-| Python | ~3.6 s | ~40 MB |
-| C | ~0.2 s | ~14 MB |
-
-The C version is roughly 15x faster in that workload. The gain comes from a
-single URL parse, a single combined regex for path noise, and avoiding Python
-object creation for every line.
-
 ## Limitations
 
 - `--exclude` uses POSIX extended regular expressions, not Python `re`.

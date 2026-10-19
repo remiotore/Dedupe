@@ -1,6 +1,6 @@
-# dedup
+# dedupe
 
-Fast URL deduplicator for blog-heavy and CMS-heavy bug-bounty URL lists.
+Fast URL dedupelicator for blog-heavy and CMS-heavy bug-bounty URL lists.
 
 It removes static assets and blog-like/CMS noise (not only WordPress),
 normalizes URLs, merges query parameters per URL, and optionally upgrades
@@ -11,7 +11,7 @@ faster.
 ## Build
 
 ```sh
-gcc -O2 -std=c11 -Wall -Wextra -o dedup dedup.c
+gcc -O2 -std=c11 -Wall -Wextra -o dedupe dedupe.c
 ```
 
 The only external APIs used are POSIX `getline`, `regex`, and `getopt_long`.
@@ -20,11 +20,11 @@ It builds on Linux without extra libraries.
 ## Usage
 
 ```sh
-./dedup urls.txt -o clean.txt
-cat urls.txt | ./dedup
-./dedup urls.txt --drop-blog-slugs --exclude '\.(pdf|zip)$'
-./dedup urls.txt --include-statics js,json,xml,txt
-./dedup urls.txt --all-values --stats
+./dedupe urls.txt -o clean.txt
+cat urls.txt | ./dedupe
+./dedupe urls.txt --drop-blog-slugs --exclude '\.(pdf|zip)$'
+./dedupe urls.txt --include-statics js,json,xml,txt
+./dedupe urls.txt --all-values --stats
 ```
 
 `FILE` is optional; stdin is used when it is omitted. Input is read fully

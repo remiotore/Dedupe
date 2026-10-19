@@ -1,11 +1,12 @@
 # dedup
 
-Fast URL deduplicator for WordPress-heavy bug-bounty URL lists.
+Fast URL deduplicator for blog-heavy and CMS-heavy bug-bounty URL lists.
 
-It removes static assets and WordPress/blog noise, normalizes URLs, merges query
-parameters per URL, and optionally upgrades `http` to `https`. It is a C port of
-an earlier Python tool, written because URL-list processing is dominated by
-parsing and string work that C handles much faster.
+It removes static assets and blog-like/CMS noise (not only WordPress),
+normalizes URLs, merges query parameters per URL, and optionally upgrades
+`http` to `https`. It is a C port of an earlier Python tool, written because
+URL-list processing is dominated by parsing and string work that C handles much
+faster.
 
 ## Build
 
@@ -40,7 +41,7 @@ before the output file is opened, so `-o` may safely point at the input file.
 | `--min-hyphens N` | Hyphens needed for `--drop-blog-slugs` (default: `4`). |
 | `--exclude REGEX` | Extra POSIX ERE drop rule. Repeatable. Matched against the original URL. |
 | `--exclude-case-sensitive` | Make `--exclude` case-sensitive (default is case-insensitive). |
-| `--keep-p-param` | Do not treat `?p=` as a WordPress post query. |
+| `--keep-p-param` | Do not treat `?p=` as a CMS/blog post query. |
 | `--no-prefer-https` | Do not upgrade `http` to `https` when both versions exist. |
 | `--keep-tracking` | Keep `utm_*`, `fbclid`, and similar tracking parameters. |
 | `--all-values` | Keep every distinct raw value for a repeated key. Default keeps the first value per key. |
@@ -49,24 +50,36 @@ before the output file is opened, so `-o` may safely point at the input file.
 | `-h, --help` | Show usage. |
 
 `--include-statics` only exempts those extensions from the static-asset drop.
-A URL can still be dropped by a WordPress rule or `--exclude`.
+A URL can still be dropped by a blog/CMS rule or `--exclude`.
 
 ## Filtering rules
 
 Only `http` and `https` URLs are accepted.
 
-Paths are dropped when they match WordPress/blog noise:
+Paths are dropped when they match blog-like/CMS noise:
 
-- `wp-admin`, `wp-content`, `wp-includes`, `wp-json`, `wp-login.php`,
-  `wp-cron.php`, `wp-signup.php`, `xmlrpc.php`, `readme.html`, `license.txt`
+- WordPress core: `wp-admin`, `wp-content`, `wp-includes`, `wp-json`,
+  `wp-login.php`, `wp-cron.php`, `wp-signup.php`, `xmlrpc.php`, `readme.html`,
+  `license.txt`
 - feeds and comments feeds: `/feed`, `/rss`, `/atom`, `/comments/feed`
-- taxonomy pages: `category`, `tag`, `author`, `archive(s)`, `taxonomy`
-- pagination: `/page/N`
-- date paths such as `/2024/12` or `/2024-12-31`
+- taxonomy pages: `category`, `tag`, `author`, `archive(s)`, `taxonomy`,
+  `topic(s)`, `label(s)`
+- pagination and comment pages: `/page/N`, `/comment-page-N`
+- date archives such as `/2024/`, `/2024/12`, `/2024-12-31`, and dated slugs
 - numeric IDs such as `/1234/` and `/1234-slug/`
-- blog-like roots: `/blog`, `/news`, `/post(s)`, `/article(s)`, `/story`,
-  `/journal`, `/note`, `/stories`, `/notes`
+- blog-like roots: `/blog(s)`, `/weblog(s)`, `/news`, `/newsroom`, `/press`,
+  `/post(s)`, `/article(s)`, `/story`, `/stories`, `/journal(s)`, `/note(s)`,
+  `/entry`, `/entries`, `/magazine(s)`, `/publication(s)`, `/announcement(s)`,
+  `/insight(s)`, `/update(s)`, `/event(s)`
 - attachments and revisions
+
+Blog-like roots are matched at the start of the path, so `/blog/post` is
+dropped but `/my-blog/post` is not. The filter is deliberately not
+WordPress-specific: common CMS, news, magazine, press, and personal-blog
+patterns are included.
+
+Hyphenated blog slugs are not dropped by default. Add `--drop-blog-slugs` to
+drop long slug-like paths as well, for example `/how-to-do-something-great`.
 
 Static extensions are dropped by default:
 
@@ -79,7 +92,7 @@ pdf zip rar 7z tar gz bz2 xz
 doc docx xls xlsx ppt pptx rtf csv
 ```
 
-WordPress post query parameters (`p`, `page_id`, `attachment_id`,
+CMS/blog post query parameters (`p`, `page_id`, `attachment_id`,
 `preview_id`, `preview_nonce`) drop the URL. `--keep-p-param` exempts only `p`.
 
 Noise parameters (`replytocom`, `cpage`, `calendar`) are always stripped.
@@ -146,5 +159,5 @@ object creation for every line.
   unique `(host, path)` groups.
 - A percent-encoded `NUL` in a path or query key is not supported; C strings
   stop at the first NUL.
-- `--include-statics` affects extension filtering only. WordPress path rules
+- `--include-statics` affects extension filtering only. Blog/CMS path rules
   and `--exclude` still apply.

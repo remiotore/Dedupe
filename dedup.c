@@ -133,20 +133,25 @@ static const char *const WP_POST_QUERY[] = {
 };
 
 /*
- * POSIX ERE version of the Python filter. The old FEED_COMMENTS_RE and
- * ARCHIVES_DATE_RE patterns were already covered by FEED_RE / TAXONOMY_RE.
+ * Blog/CMS noise, not just WordPress. This covers WordPress core, feeds,
+ * taxonomies, date/numeric archives, and common blog-like content roots.
  */
 static const char *const NOISE_PATH_PATTERN =
     "(/(wp-admin|wp-content|wp-includes|wp-json|wp-login[.]php|"
     "wp-cron[.]php|wp-signup[.]php|xmlrpc[.]php|readme[.]html|license[.]txt)"
     "([/?.]|$)"
     "|/(feed|rss|atom)(/|[.]xml|$)"
-    "|/(category|tag|author|archives?|taxonomy)(/|$)"
+    "|/(category|tag|author|archives?|taxonomy|topics?|labels?)(/|$)"
     "|/page/[0-9]+/?$"
-    "|/[0-9]{4}[/-][0-9]{2}([/-][0-9]{2})?(/|$)"
+    "|/comment-page-[0-9]+/?"
+    "|/[0-9]{4}(/|$)"
+    "|/[0-9]{4}[/-][0-9]{2}([/-][0-9]{2})?([/_-]|$)"
+    "|/[0-9]{4}[-_][0-9]{1,2}[-_][0-9]{1,2}([-_/]|$)"
     "|/[0-9]{3,}/?$"
     "|/[0-9]{3,}-[^/]+/?$"
-    "|^/(blog|news|articles?|posts?|stories|journal|notes)(/|$)"
+    "|^/(blogs?|weblogs?|news|newsroom|press|articles?|posts?|stories|story|"
+    "journals?|notes?|entries|entry|magazines?|publications?|announcements?|"
+    "insights?|updates?|events?)(/|$)"
     "|/(attachment|revision)/)";
 
 static regex_t noise_re;
@@ -726,7 +731,7 @@ static void usage(FILE *out) {
     fprintf(out,
         "Usage: dedup [OPTIONS] [FILE]\n"
         "\n"
-        "Dedupe URLs, drop WordPress/blog noise, merge query params per URL.\n"
+        "Dedupe URLs, drop blog-like/CMS noise, merge query params per URL.\n"
         "Reads stdin when FILE is omitted.\n"
         "\n"
         "Options:\n"
@@ -738,7 +743,7 @@ static void usage(FILE *out) {
         "      --min-hyphens N            hyphens required (default: 4)\n"
         "      --exclude REGEX            extra POSIX ERE drop rule (repeatable)\n"
         "      --exclude-case-sensitive   match --exclude case-sensitively\n"
-        "      --keep-p-param             do not treat ?p= as a WP post\n"
+        "      --keep-p-param             do not treat ?p= as a CMS/blog post\n"
         "      --no-prefer-https          do not upgrade http to https\n"
         "      --keep-tracking            keep utm_*/fbclid/etc. params\n"
         "      --all-values               keep all values for a repeated key\n"

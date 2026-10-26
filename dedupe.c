@@ -729,7 +729,7 @@ static int cmp_line(const void *a, const void *b) {
 /* --------------------------------- CLI ------------------------------------- */
 static void usage(FILE *out) {
     fprintf(out,
-        "Usage: dedup [OPTIONS] [FILE]\n"
+        "Usage: dedupe [OPTIONS] [FILE]\n"
         "\n"
         "Dedupe URLs, drop blog-like/CMS noise, merge query params per URL.\n"
         "Reads stdin when FILE is omitted.\n"
